@@ -10,7 +10,7 @@ object ExternalCompile {
     System.getProperty("os.name").toLowerCase().indexOf("win") >= 0
 
   val scalaJSExternalCompileConfigSettings: Seq[Setting[_]] = inTask(compile)(
-      Defaults.runnerTask
+      runner := Defaults.runnerInit // Defaults.runnerTask
   ) ++ Seq(
       fork in compile := true,
       trapExit in compile := true,
@@ -22,7 +22,8 @@ object ExternalCompile {
 
         val s = streams.value
         val logger = s.log
-        val cacheDir = s.cacheDirectory
+        // val cacheDir = s.cacheDirectory
+        val cacheStoreFactory = s.cacheStoreFactory
 
         // Discover classpaths
 
@@ -41,8 +42,8 @@ object ExternalCompile {
 
         // Compile
 
-        val cachedCompile = FileFunction.cached(cacheDir / "compile",
-            FilesInfo.lastModified, FilesInfo.exists) { dependencies =>
+        val cachedCompile = FileFunction.cached(cacheStoreFactory sub "compile",
+            FileInfo.lastModified, FileInfo.exists) { dependencies =>
 
           logger.info(
               "Compiling %d Scala sources to %s..." format (

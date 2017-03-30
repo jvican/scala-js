@@ -6,7 +6,7 @@ import sbt._
 import sbt.inc.{IncOptions, ClassfileManager}
 import Keys._
 import sbinary.DefaultProtocol._
-import Cache.seqFormat
+import sjsonnew.BasicJsonProtocol._
 import complete.Parser
 import complete.DefaultParsers._
 
@@ -152,8 +152,8 @@ object ScalaJSPluginInternal {
         val realFiles = deps.get(scalaJSSourceFiles).get
         val resolvedDeps = deps.data
 
-        FileFunction.cached(s.cacheDirectory / cacheName, FilesInfo.lastModified,
-            FilesInfo.exists) { _ => // We don't need the files
+        FileFunction.cached(s.cacheStoreFactory sub cacheName, FileInfo.lastModified,
+            FileInfo.exists) { _ => // We don't need the files
 
           IO.createDirectory(output.getParentFile)
 
@@ -236,8 +236,8 @@ object ScalaJSPluginInternal {
         val output = (artifactPath in key).value
 
         Def.task {
-          FileFunction.cached(s.cacheDirectory, FilesInfo.lastModified,
-              FilesInfo.exists) { _ => // We don't need the files
+          FileFunction.cached(s.cacheStoreFactory, FileInfo.lastModified,
+              FileInfo.exists) { _ => // We don't need the files
 
             val stageName = stage match {
               case Stage.FastOpt => "Fast"

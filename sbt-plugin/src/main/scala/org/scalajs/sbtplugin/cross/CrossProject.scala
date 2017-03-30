@@ -17,6 +17,8 @@ import scala.language.experimental.macros
 import scala.reflect.macros.Context
 
 import sbt._
+import sbt.internal.AddSettings
+import sbt.util.Eval
 import Keys._
 import Project.projectToRef
 
@@ -256,7 +258,9 @@ final class CrossProject private (
     copy(jvm.configure(transforms: _*), js.configure(transforms: _*))
 
   def dependsOn(deps: CrossClasspathDependency*): CrossProject =
-    copy(jvm.dependsOn(deps.map(_.jvm): _*), js.dependsOn(deps.map(_.js): _*))
+    copy(
+      jvm.dependsOn(deps.map(_.jvm: Eval[ClasspathDep[ProjectReference]]): _*),
+      js.dependsOn(deps.map(_.js: Eval[ClasspathDep[ProjectReference]]): _*))
 
   def disablePlugins(ps: AutoPlugin*): CrossProject =
     copy(jvm.disablePlugins(ps: _*), js.disablePlugins(ps: _*))

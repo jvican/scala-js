@@ -47,7 +47,7 @@ final case class JarJSModuleID(
   def configurations: Option[String] = module.configurations
 
   protected def withConfigs(configs: Option[String]): JSModuleID =
-    copy(module = module.copy(configurations = configs))
+    copy(module = module.withConfigurations(configs))
   protected def withJSDep(jsDep: JSDependency): JSModuleID =
     copy(jsDep = jsDep)
 }
