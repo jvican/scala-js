@@ -3,7 +3,7 @@ package org.scalajs.sbtplugin
 import java.util.IllegalFormatException
 
 import sbt._
-import sbt.inc.{IncOptions, ClassfileManager}
+import xsbti.compile.{IncOptions, CompileAnalysis}
 import Keys._
 import sbinary.DefaultProtocol._
 import sjsonnew.BasicJsonProtocol._
@@ -118,25 +118,27 @@ object ScalaJSPluginInternal {
    *  corresponding .sjsir file are also deleted.
    */
   def scalaJSPatchIncOptions(incOptions: IncOptions): IncOptions = {
-    val inheritedNewClassfileManager = incOptions.newClassfileManager
-    val newClassfileManager = () => new ClassfileManager {
-      private[this] val inherited = inheritedNewClassfileManager()
-
-      def delete(classes: Iterable[File]): Unit = {
-        inherited.delete(classes flatMap { classFile =>
-          val scalaJSFiles = if (classFile.getPath endsWith ".class") {
-            val f = FileVirtualFile.withExtension(classFile, ".class", ".sjsir")
-            if (f.exists) List(f)
-            else Nil
-          } else Nil
-          classFile :: scalaJSFiles
-        })
-      }
-
-      def generated(classes: Iterable[File]): Unit = inherited.generated(classes)
-      def complete(success: Boolean): Unit = inherited.complete(success)
-    }
-    incOptions.withNewClassfileManager(newClassfileManager)
+    // XXX
+    incOptions
+//    val inheritedNewClassfileManager = incOptions.newClassfileManager
+//    val newClassfileManager = () => new ClassfileManager {
+//      private[this] val inherited = inheritedNewClassfileManager()
+//
+//      def delete(classes: Iterable[File]): Unit = {
+//        inherited.delete(classes flatMap { classFile =>
+//          val scalaJSFiles = if (classFile.getPath endsWith ".class") {
+//            val f = FileVirtualFile.withExtension(classFile, ".class", ".sjsir")
+//            if (f.exists) List(f)
+//            else Nil
+//          } else Nil
+//          classFile :: scalaJSFiles
+//        })
+//      }
+//
+//      def generated(classes: Iterable[File]): Unit = inherited.generated(classes)
+//      def complete(success: Boolean): Unit = inherited.complete(success)
+//    }
+//    incOptions.withNewClassfileManager(newClassfileManager)
   }
 
   private def packageJSDependenciesSetting(taskKey: TaskKey[File], cacheName: String,
@@ -703,7 +705,7 @@ object ScalaJSPluginInternal {
       .withContent(launcherContent(mainCl, moduleKind, moduleIdentifier))
   }
 
-  def discoverJSApps(analysis: inc.Analysis): Seq[String] = {
+  def discoverJSApps(analysis: CompileAnalysis): Seq[String] = {
     import xsbt.api.{Discovered, Discovery}
 
     val jsApp = "scala.scalajs.js.JSApp"

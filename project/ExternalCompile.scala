@@ -18,7 +18,8 @@ object ExternalCompile {
 
       compile := {
         val inputs = (compileInputs in compile).value
-        import inputs.config._
+        val inputsOptions = inputs.options
+        import inputsOptions._
 
         val s = streams.value
         val logger = s.log
@@ -30,7 +31,9 @@ object ExternalCompile {
         def cpToString(cp: Seq[File]) =
           cp.map(_.getAbsolutePath).mkString(java.io.File.pathSeparator)
 
-        val compilerCp = inputs.compilers.scalac.scalaInstance.allJars
+        // XXX
+        type CompilersAccess = { def scalac(): xsbti.compile.CachedCompilerProvider }
+        val compilerCp = inputs.compilers.asInstanceOf[CompilersAccess].scalac.scalaInstance.allJars
         val cpStr = cpToString(classpath)
 
         // List all my dependencies (recompile if any of these changes)
@@ -76,7 +79,7 @@ object ExternalCompile {
             run.run("scala.tools.nsc.Main", compilerCp,
                 "-cp" :: cpStr ::
                 "-d" :: classesDirectory.getAbsolutePath() ::
-                options ++:
+                scalacOptions ++:
                 sourcesArgs,
                 patchedLogger) foreach sys.error
           }
@@ -101,7 +104,8 @@ object ExternalCompile {
         cachedCompile((sources ++ allMyDependencies).toSet)
 
         // We do not have dependency analysis when compiling externally
-        sbt.inc.Analysis.Empty
+        // TODO: non internal
+        sbt.internal.inc.Analysis.Empty
       },
 
       // Make sure jsDependencyManifest runs after compile, otherwise compile
