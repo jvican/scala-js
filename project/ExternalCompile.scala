@@ -10,7 +10,7 @@ object ExternalCompile {
     System.getProperty("os.name").toLowerCase().indexOf("win") >= 0
 
   val scalaJSExternalCompileConfigSettings: Seq[Setting[_]] = inTask(compile)(
-      runner := Defaults.runnerInit // Defaults.runnerTask
+      Defaults.runnerTask
   ) ++ Seq(
       fork in compile := true,
       trapExit in compile := true,
