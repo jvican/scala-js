@@ -34,9 +34,10 @@ object ScalaJSCrossVersion {
   }
 
   def scalaJSMapped(cross: CrossVersion): CrossVersion = cross match {
-    case _: Disabled   => CrossVersion.binaryMapped(scalaJSVersionUnmapped)
-    case cross: Binary => CrossVersion.binaryMapped(cross.remapVersion andThen scalaJSVersionMap)
-    case cross: Full   => CrossVersion.fullMapped(cross.remapVersion andThen scalaJSVersionMap)
+    // XXX
+    case _: Disabled   => Binary() // CrossVersion.binaryMapped(scalaJSVersionUnmapped)
+    case cross: Binary => cross    // CrossVersion.binaryMapped(cross.remapVersion andThen scalaJSVersionMap)
+    case cross: Full   => cross    //   CrossVersion.fullMapped(cross.remapVersion andThen scalaJSVersionMap)
   }
 
   val binary: CrossVersion = scalaJSMapped(CrossVersion.binary)
