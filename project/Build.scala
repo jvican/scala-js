@@ -447,7 +447,9 @@ object Build {
             sLog.value.warn(s"Unknown JDK version $v. Assuming max compat.")
             Int.MaxValue
         }
-      }
+      },
+      mimaPreviousArtifacts := Set.empty,
+      mimaBinaryIssueFilters := Nil
   )
 
   lazy val root: Project = Project(
