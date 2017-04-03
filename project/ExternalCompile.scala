@@ -81,7 +81,7 @@ object ExternalCompile {
                 "-d" :: classesDirectory.getAbsolutePath() ::
                 scalacOptions ++:
                 sourcesArgs,
-                patchedLogger) foreach sys.error
+                patchedLogger) getOrElse sys.error("Failed to compile")
           }
 
           /* Crude way of overcoming the Windows limitation on command line
