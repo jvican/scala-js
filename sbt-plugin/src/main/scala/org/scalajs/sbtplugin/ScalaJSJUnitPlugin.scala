@@ -28,6 +28,7 @@ object ScalaJSJUnitPlugin extends AutoPlugin {
         "org.scala-js" %% "scalajs-junit-test-runtime" % scalaJSVersion  % "test"),
     scalacOptions in Test ++= {
       val report = update.value
+      import sbt.librarymanagement.syntax._
       val jars = report.select(configurationFilter("scala-js-test-plugin"))
       for {
         jar <- jars

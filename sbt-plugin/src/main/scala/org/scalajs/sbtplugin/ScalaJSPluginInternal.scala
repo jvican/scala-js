@@ -154,7 +154,7 @@ object ScalaJSPluginInternal {
         val realFiles = deps.get(scalaJSSourceFiles).get
         val resolvedDeps = deps.data
 
-        FileFunction.cached(s.cacheStoreFactory sub cacheName, FileInfo.lastModified,
+        FileFunction.cached(s.cacheDirectory / cacheName, FileInfo.lastModified,
             FileInfo.exists) { _ => // We don't need the files
 
           IO.createDirectory(output.getParentFile)
@@ -238,7 +238,7 @@ object ScalaJSPluginInternal {
         val output = (artifactPath in key).value
 
         Def.task {
-          FileFunction.cached(s.cacheStoreFactory, FileInfo.lastModified,
+          FileFunction.cached(s.cacheDirectory, FileInfo.lastModified,
               FileInfo.exists) { _ => // We don't need the files
 
             val stageName = stage match {
@@ -995,13 +995,14 @@ object ScalaJSPluginInternal {
       ivyConfigurations += config("phantom-js-jetty").hide,
       libraryDependencies ++= phantomJSJettyModules.map(_ % "phantom-js-jetty"),
       scalaJSPhantomJSClassLoader := {
+        import sbt.librarymanagement.syntax._
         val report = update.value
         val jars = report.select(configurationFilter("phantom-js-jetty"))
 
         val jettyLoader =
           new URLClassLoader(jars.map(_.toURI.toURL).toArray, null)
 
-        new PhantomJettyClassLoader(jettyLoader, getClass.getClassLoader)
+        new PhantomJettyClassLoader(jettyLoader, this.getClass.getClassLoader)
       },
       scalaJSJavaSystemProperties := Map.empty,
       scalaJSConfigurationLibs := Nil

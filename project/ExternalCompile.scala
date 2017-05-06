@@ -23,8 +23,7 @@ object ExternalCompile {
 
         val s = streams.value
         val logger = s.log
-        // val cacheDir = s.cacheDirectory
-        val cacheStoreFactory = s.cacheStoreFactory
+        val cacheDir = s.cacheDirectory
 
         // Discover classpaths
 
@@ -45,8 +44,8 @@ object ExternalCompile {
 
         // Compile
 
-        val cachedCompile = FileFunction.cached(cacheStoreFactory sub "compile",
-            FileInfo.lastModified, FileInfo.exists) { dependencies =>
+        val cachedCompile = FileFunction.cached(cacheDir / "compile",
+            FileInfo.lastModified, FileInfo.exists) { (dependencies: Set[File]) =>
 
           logger.info(
               "Compiling %d Scala sources to %s..." format (
