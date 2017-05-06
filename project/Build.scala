@@ -224,7 +224,7 @@ object Build {
           m.group(1) + "?" + frag.replace('.', '/') + ".html"
         }
 
-        FileFunction.cached(streams.value.cacheStoreFactory,
+        FileFunction.cached(streams.value.cacheDirectory,
             FileInfo.lastModified, FileInfo.exists) { files =>
           for {
             file <- files
@@ -891,19 +891,19 @@ object Build {
 
       fetchScalaSource := {
         val s = streams.value
-        val cacheStoreFactory = s.cacheStoreFactory
         val ver = scalaVersion.value
         val trgDir = (artifactPath in fetchScalaSource).value
 
+        import sbt.librarymanagement.syntax._
         val report = (update in fetchScalaSource).value
         val scalaLibSourcesJar = report.select(
-            configuration = Set("compile"),
+            configuration = configurationFilter(name = "compile"),
             module = moduleFilter(name = "scala-library"),
             artifact = artifactFilter(classifier = "sources")).headOption.getOrElse {
           sys.error(s"Could not fetch scala-library sources for version $ver")
         }
 
-        FileFunction.cached(cacheStoreFactory sub s"fetchScalaSource-$ver",
+        FileFunction.cached(s.cacheDirectory / s"fetchScalaSource-$ver",
             FileInfo.lastModified, FileInfo.exists) { dependencies =>
           s.log.info(s"Unpacking Scala library sources to $trgDir...")
 
